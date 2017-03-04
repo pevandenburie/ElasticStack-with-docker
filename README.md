@@ -4,11 +4,13 @@ Tutorial to use Kibana-ElasticSearch-Logstash from their containers.
 ## ElasticSearch
 
 https://www.elastic.co/guide/en/beats/libbeat/current/elasticsearch-installation.html
-https://hub.docker.com/_/elasticsearch/
+
+https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
 
 
-    $ docker pull elasticsearch    // to be deprecated
-    $ docker run --rm -d -p 9200:9200 elasticsearch
+    $ docker pull docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+    $ docker run --rm -d -p 9200:9200 -e "http.host=0.0.0.0" -e "transport.host=127.0.0.1" docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+
     $ curl http://127.0.0.1:9200
 
     {
@@ -33,14 +35,26 @@ This image is configured with a volume at /usr/share/elasticsearch/data to hold 
     $ docker run -d -v "$PWD/esdata":/usr/share/elasticsearch/data elasticsearch
 This image includes EXPOSE 9200 9300 (default http.port), so standard container linking will make it automatically available to the linked containers.
 
+Using the docker-compose file:
+
+    $ docker-compose up
+    $ curl -u elastic http://127.0.0.1:9200/_cat/health
+    $ docker-compose down -v  // To destroy the cluster **and the data volumes**
+
+
 
 ## Logstash
 
 https://hub.docker.com/_/logstash/
 
-$ docker run -it --rm logstash -e 'input { stdin { } } output { stdout { } }'
-$ docker run -it --rm -v "$PWD":/config-dir logstash -f /config-dir/logstash.conf
+We customize the Logstash docker image to include plugins and config file:
+
+    $ docker build -t logstash-beats .
+    $ docker run -d my-logstash
 
 
-  $ docker pull logstash     // to be deprecated
-  
+Other methods:
+
+    $ docker pull logstash     // to be deprecated
+    $ docker run -it --rm logstash -e 'input { stdin { } } output { stdout { } }'
+    $ docker run -it --rm -v "$PWD":/config-dir logstash -f /config-dir/logstash.conf
