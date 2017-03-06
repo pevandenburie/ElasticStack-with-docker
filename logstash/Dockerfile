@@ -1,9 +1,6 @@
-#FROM logstash:5
 FROM docker.elastic.co/logstash/logstash:5.2.2
 
-#RUN logstash-plugin install logstash-filter-de_dot
-RUN logstash-plugin install logstash-input-beats
+RUN rm -f /usr/share/logstash/pipeline/logstash.conf
 
-COPY logstash.conf /config-dir/
-
-CMD ["-f", "/config-dir/logstash.conf"]
+ADD pipeline/ /usr/share/logstash/pipeline/
+ADD config/ /usr/share/logstash/config/

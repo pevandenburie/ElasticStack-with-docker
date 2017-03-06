@@ -11,12 +11,12 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
     $ docker pull docker.elastic.co/elasticsearch/elasticsearch:5.2.2
     $ docker run --rm -d -p 9200:9200 -e "http.host=0.0.0.0" -e "transport.host=127.0.0.1" docker.elastic.co/elasticsearch/elasticsearch:5.2.2
 
-    $ curl http://127.0.0.1:9200
+    $ curl -u elastic:changeme http://localhost:9200   // default X-Pack password is "changeme"
 
     {
-      "name" : "DpE3ELq",
-      "cluster_name" : "elasticsearch",
-      "cluster_uuid" : "nZcP91shRKWEu3x0PG-eJw",
+      "name" : "C34DJmz",
+      "cluster_name" : "docker-cluster",
+      "cluster_uuid" : "ZUEtuv5hTLeGemUT4c3KAQ",
       "version" : {
         "number" : "5.2.2",
         "build_hash" : "f9d9b74",
@@ -45,9 +45,20 @@ Using the docker-compose file:
 
 ## Logstash
 
-https://hub.docker.com/_/logstash/
+https://www.elastic.co/guide/en/logstash/current/docker.html
 
-We customize the Logstash docker image to include plugins and config file:
+By default, the container will look in /usr/share/logstash/pipeline/ for pipeline configuration files.
+
+    $ docker run --rm -it -v ~/pipeline/:/usr/share/logstash/pipeline/ docker.elastic.co/logstash/logstash:5.2.2
+
+If you don’t provide configuration to Logstash, it will run with a minimal config that listens for messages from the **Beats input plugin** and echoes any that are received to stdout.
+
+
+Beats plugin: https://www.elastic.co/guide/en/logstash/current/plugins-inputs-beats.html
+
+To customize the Logstash docker image to include plugins and config file:
+
+
 
     $ docker build -t logstash-beats .
     $ docker run -d my-logstash
