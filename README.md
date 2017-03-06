@@ -1,5 +1,17 @@
 Tutorial to use Kibana-ElasticSearch-Logstash from their containers.
 
+## Using the docker-compose file
+
+The simpler method:
+
+    $ docker-compose up
+
+Connect to Kibana web UI : http://localhost:5601
+Username: **kibana**
+Password: **changeme**
+
+    $ docker-compose down -v    // -v to remove the volumes
+    
 
 ## ElasticSearch
 
