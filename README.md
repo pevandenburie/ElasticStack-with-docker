@@ -11,7 +11,30 @@ Username: **kibana**
 Password: **changeme**
 
     $ docker-compose down -v    // -v to remove the volumes
-    
+
+
+## Filebeat
+
+First download FileBeat:
+
+https://www.elastic.co/downloads/beats/filebeat
+
+Pushing the Filebeat template to ElasticSearch:
+
+    $ curl -XPUT 'http://localhost:9200/_template/filebeat' -d@filebeat.template.json
+
+To remove old documents:
+
+    $ curl -XDELETE 'http://localhost:9200/filebeat-* '
+
+Import dashboard and index into ElasticSearch:
+
+    $ ./import_dashboards -user elastic -pass changeme -es "http://localhost:9200"
+
+Starting FileBeat:
+
+    $ ./filebeat -c filebeat.yml -e
+
 
 ## ElasticSearch
 
