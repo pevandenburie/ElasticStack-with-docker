@@ -7,10 +7,14 @@ The simpler method:
     $ docker-compose up
 
 Connect to Kibana web UI : http://localhost:5601
-Username: **kibana**
+Username: **elastic**
 Password: **changeme**
 
-    $ docker-compose down -v    // -v to remove the volumes
+    $ docker-compose down
+
+Or, to remove the volumes:
+
+    $ docker-compose down -v
 
 
 ## Filebeat
@@ -21,11 +25,11 @@ https://www.elastic.co/downloads/beats/filebeat
 
 Pushing the Filebeat template to ElasticSearch:
 
-    $ curl -XPUT 'http://localhost:9200/_template/filebeat' -d@filebeat.template.json
+    $ curl -XPUT -u elastic:changeme 'http://localhost:9200/_template/filebeat' -d@filebeat.template.json
 
 To remove old documents:
 
-    $ curl -XDELETE 'http://localhost:9200/filebeat-* '
+    $ curl -XDELETE 'http://localhost:9200/filebeat-*'
 
 Import dashboard and index into ElasticSearch:
 
@@ -33,74 +37,103 @@ Import dashboard and index into ElasticSearch:
 
 Starting FileBeat:
 
-    $ ./filebeat -c filebeat.yml -e
+    $ ./filebeat -c filebeat.yml -e -d '* '
 
 
-## ElasticSearch
+## Example
 
-https://www.elastic.co/guide/en/beats/libbeat/current/elasticsearch-installation.html
+https://www.elastic.co/guide/en/kibana/current/tutorial-load-dataset.html
 
-https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+Download example data file:
 
+    $ wget https://download.elastic.co/demos/kibana/gettingstarted/shakespeare.json
 
-    $ docker pull docker.elastic.co/elasticsearch/elasticsearch:5.2.2
-    $ docker run --rm -d -p 9200:9200 -e "http.host=0.0.0.0" -e "transport.host=127.0.0.1" docker.elastic.co/elasticsearch/elasticsearch:5.2.2
+Setup the mapping of the data:
 
-    $ curl -u elastic:changeme http://localhost:9200   // default X-Pack password is "changeme"
-
+    $ curl -u elastic -XPUT http://localhost:9200/shakespeare -d '
     {
-      "name" : "C34DJmz",
-      "cluster_name" : "docker-cluster",
-      "cluster_uuid" : "ZUEtuv5hTLeGemUT4c3KAQ",
-      "version" : {
-        "number" : "5.2.2",
-        "build_hash" : "f9d9b74",
-        "build_date" : "2017-02-24T17:26:45.835Z",
-        "build_snapshot" : false,
-        "lucene_version" : "6.4.1"
-      },
-      "tagline" : "You Know, for Search"
+     "mappings" : {
+      "_default_" : {
+       "properties" : {
+        "speaker" : {"type": "string", "index" : "not_analyzed" },
+        "play_name" : {"type": "string", "index" : "not_analyzed" },
+        "line_id" : { "type" : "integer" },
+        "speech_number" : { "type" : "integer" }
+       }
+      }
+     }
     }
+    ';
 
-Other methods:
+    $ curl -u elastic -XPUT http://localhost:9200/logstash-2015.05.18 -d '
+    {
+      "mappings": {
+        "log": {
+          "properties": {
+            "geo": {
+              "properties": {
+                "coordinates": {
+                  "type": "geo_point"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    ';
 
-    $ docker run -d -v "$PWD/config":/usr/share/elasticsearch/config elasticsearch
-This image is configured with a volume at /usr/share/elasticsearch/data to hold the persisted index data. Use that path if you would like to keep the data in a mounted volume:
+    $ curl -u elastic -XPUT http://localhost:9200/logstash-2015.05.19 -d '
+    {
+      "mappings": {
+        "log": {
+          "properties": {
+            "geo": {
+              "properties": {
+                "coordinates": {
+                  "type": "geo_point"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    ';
 
-    $ docker run -d -v "$PWD/esdata":/usr/share/elasticsearch/data elasticsearch
-This image includes EXPOSE 9200 9300 (default http.port), so standard container linking will make it automatically available to the linked containers.
+    $ curl -u elastic -XPUT http://localhost:9200/logstash-2015.05.20 -d '
+    {
+      "mappings": {
+        "log": {
+          "properties": {
+            "geo": {
+              "properties": {
+                "coordinates": {
+                  "type": "geo_point"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    ';
 
-Using the docker-compose file:
+Load the data:
 
-    $ docker-compose up
-    $ curl -u elastic http://127.0.0.1:9200/_cat/health
-    $ docker-compose down -v  // To destroy the cluster **and the data volumes**
+    $ curl -u elastic:changeme -XPOST 'localhost:9200/shakespeare/_bulk?pretty' --data-binary @shakespeare.json
 
+Verify it worked:
 
-
-## Logstash
-
-https://www.elastic.co/guide/en/logstash/current/docker.html
-
-By default, the container will look in /usr/share/logstash/pipeline/ for pipeline configuration files.
-
-    $ docker run --rm -it -v ~/pipeline/:/usr/share/logstash/pipeline/ docker.elastic.co/logstash/logstash:5.2.2
-
-If you don’t provide configuration to Logstash, it will run with a minimal config that listens for messages from the **Beats input plugin** and echoes any that are received to stdout.
-
-
-Beats plugin: https://www.elastic.co/guide/en/logstash/current/plugins-inputs-beats.html
-
-To customize the Logstash docker image to include plugins and config file:
-
-
-
-    $ docker build -t logstash-beats .
-    $ docker run -d my-logstash
-
-
-Other methods:
-
-    $ docker pull logstash     // to be deprecated
-    $ docker run -it --rm logstash -e 'input { stdin { } } output { stdout { } }'
-    $ docker run -it --rm -v "$PWD":/config-dir logstash -f /config-dir/logstash.conf
+    $ curl -u elastic 'localhost:9200/_cat/indices?v'
+    health status index                             uuid                   pri rep docs.count docs.deleted store.size pri.store.size
+    yellow open   logstash-2015.05.18               5xsXBEWeSJ-f29fbPOrVjg   5   1          0            0       650b           650b
+    yellow open   .monitoring-logstash-2-2017.03.09 86rNXO0lT5e4XoB5zdPUOQ   1   1        158            0    103.8kb        103.8kb
+    yellow open   filebeat-2017.03.09               AVKvVVDyTE-U9vfLF8lyiQ   5   1          3            0     28.3kb         28.3kb
+    yellow open   .kibana                           wlUmA4dwT8SMXr2NVzo98Q   1   1          2            0      8.7kb          8.7kb
+    yellow open   .monitoring-es-2-2017.03.09       afj5KLUUTUelEu5MLBI25w   1   1       2331          360      1.3mb          1.3mb
+    yellow open   logstash-2015.05.19               n4oDJw33RKiwU2thuU0k6g   5   1          0            0       650b           650b
+    yellow open   .monitoring-kibana-2-2017.03.09   ArC5Ux7ZQxSHX6qcrJVDnQ   1   1        157            0     89.2kb         89.2kb
+    yellow open   .monitoring-data-2                xuqE2mIyS96CClJC9OdAhA   1   1          4            0      7.4kb          7.4kb
+    yellow open   shakespeare                       0khENz1JRBCyJBTrNxmrtA   5   1     111396            0     28.7mb         28.7mb
+    yellow open   logstash-2015.05.20               4OjkvDZpRAi-9k6BpLFXBw   5   1          0            0       650b           650b
