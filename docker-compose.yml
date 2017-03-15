@@ -41,6 +41,18 @@ services:
     networks:
       - esnet
 
+  filebeat:
+    image: prima/filebeat:5.2.2
+    depends_on:
+      - elasticsearch
+    hostname: filebeat
+    networks:
+      - esnet
+    restart: unless-stopped
+    volumes:
+      - ./filebeat/filebeat.yml:/filebeat.yml
+      - /var/lib/docker/containers:/hostfs/var/lib/docker/containers:rw
+
 volumes:
   esdata1:
     driver: local
