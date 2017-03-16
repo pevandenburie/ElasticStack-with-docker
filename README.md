@@ -1,5 +1,11 @@
 Tutorial to use Kibana-ElasticSearch-Logstash from their containers.
 
+## INstal
+
+    $ curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+    $ chmod +x /usr/local/bin/docker-compose
+
+
 ## Using the docker-compose file
 
 The simpler method:
@@ -137,3 +143,21 @@ Verify it worked:
     yellow open   .monitoring-data-2                xuqE2mIyS96CClJC9OdAhA   1   1          4            0      7.4kb          7.4kb
     yellow open   shakespeare                       0khENz1JRBCyJBTrNxmrtA   5   1     111396            0     28.7mb         28.7mb
     yellow open   logstash-2015.05.20               4OjkvDZpRAi-9k6BpLFXBw   5   1          0            0       650b           650b
+
+
+## Using FileBeat in a container
+
+https://discuss.elastic.co/t/collecting-logfiles-of-docker-containers-with-filebeat-running-as-docker-container/77548
+
+## Redirect the logs of a container
+
+http://stackoverflow.com/questions/33432983/docker-apps-logging-with-filebeat-and-logstash
+
+Regarding your hint about the GUIDs, I agree, however you probably would not want to make configuration like this by hand, but rather use something like Ansible. Then just "docker ps | grep container_name | awk '{print $1}'", then template the result into the config and restart filebeat.
+
+http://eembsen.github.io/2015/12/05/docker-es-filebeat/
+
+
+# Kafka
+
+https://www.elastic.co/blog/just-enough-kafka-for-the-elastic-stack-part1

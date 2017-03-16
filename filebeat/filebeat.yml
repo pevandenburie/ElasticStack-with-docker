@@ -19,9 +19,12 @@ filebeat.prospectors:
 
   # Paths that should be crawled and fetched. Glob based paths.
   paths:
-    - /Users/paulvand/tmp/log/*.log
+    #- /var/lib/docker/containers/*/*.log
+    - /hostfs/var/lib/docker/containers/*/*.log
     #- /var/log/*.log
     #- c:\programdata\elasticsearch\logs\*
+
+  registry_file: /var/lib/filebeat/registry
 
   # Exclude lines. A list of regular expressions to match. It drops the lines that are
   # matching any regular expression from the list.
@@ -91,7 +94,7 @@ filebeat.prospectors:
 #----------------------------- Logstash output --------------------------------
 output.logstash:
   # The Logstash hosts
-  hosts: ["localhost:5044"]
+  hosts: ["logstash:5044"]
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
