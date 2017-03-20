@@ -1,6 +1,6 @@
 Tutorial to use Kibana-ElasticSearch-Logstash from their containers.
 
-## INstal
+## Install docker-compose
 
     $ curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
     $ chmod +x /usr/local/bin/docker-compose
@@ -156,6 +156,26 @@ http://stackoverflow.com/questions/33432983/docker-apps-logging-with-filebeat-an
 Regarding your hint about the GUIDs, I agree, however you probably would not want to make configuration like this by hand, but rather use something like Ansible. Then just "docker ps | grep container_name | awk '{print $1}'", then template the result into the config and restart filebeat.
 
 http://eembsen.github.io/2015/12/05/docker-es-filebeat/
+
+
+# Elastic errors
+
+https://www.elastic.co/guide/en/elasticsearch/reference/5.2/docker.html
+
+https://github.com/elastic/elasticsearch/issues/19987
+https://github.com/elastic/elasticsearch/issues/19868
+
+    elasticsearch_1  | [2017-03-17T21:36:45,592][INFO ][o.e.n.Node               ] initialized
+    elasticsearch_1  | [2017-03-17T21:36:45,596][INFO ][o.e.n.Node               ] [k8kIPoW] starting ...
+    elasticsearch_1  | [2017-03-17T21:36:46,752][WARN ][i.n.u.i.MacAddressUtil   ] Failed to find a usable hardware address from the network interfaces; using random bytes: 3c:2b:0e:fc:97:03:a2:3d
+    elasticsearch_1  | [2017-03-17T21:36:47,090][INFO ][o.e.t.TransportService   ] [k8kIPoW] publish_address {172.18.0.2:9300}, bound_addresses {[::]:9300}
+    elasticsearch_1  | [2017-03-17T21:36:47,122][INFO ][o.e.b.BootstrapChecks    ] [k8kIPoW] bound or publishing to a non-loopback or non-link-local address, enforcing bootstrap checks
+    elasticsearch_1  | ERROR: bootstrap checks failed
+    elasticsearch_1  | max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+    elasticsearch_1  | [2017-03-17T21:36:47,215][INFO ][o.e.n.Node               ] [k8kIPoW] stopping ...
+    elasticsearch_1  | [2017-03-17T21:36:47,290][INFO ][o.e.n.Node               ] [k8kIPoW] stopped
+    elasticsearch_1  | [2017-03-17T21:36:47,296][INFO ][o.e.n.Node               ] [k8kIPoW] closing ...
+    elasticsearch_1  | [2017-03-17T21:36:47,358][INFO ][o.e.n.Node               ] [k8kIPoW] closed
 
 
 # Kafka
