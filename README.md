@@ -46,6 +46,15 @@ Starting FileBeat:
     $ ./filebeat -c filebeat.yml -e -d '* '
 
 
+## Disabling X-Pack
+
+There is a 30-days trial period.
+
+    xpack.security.enabled
+
+Set to ``false`` to disable X-Pack security. Configure in both ``elasticsearch.yml`` and ``kibana.yml``.
+
+
 ## Example
 
 https://www.elastic.co/guide/en/kibana/current/tutorial-load-dataset.html
@@ -149,6 +158,11 @@ Verify it worked:
 
 https://discuss.elastic.co/t/collecting-logfiles-of-docker-containers-with-filebeat-running-as-docker-container/77548
 
+Run in standalone:
+
+    $ docker run -it -v ./filebeat/filebeat.yml:/filebeat.yml -v /var/lib/docker/containers:/hostfs/var/lib/docker/containers:rw prima/filebeat:5.2.2
+
+
 ## Redirect the logs of a container
 
 http://stackoverflow.com/questions/33432983/docker-apps-logging-with-filebeat-and-logstash
@@ -178,6 +192,29 @@ https://github.com/elastic/elasticsearch/issues/19868
     elasticsearch_1  | [2017-03-17T21:36:47,358][INFO ][o.e.n.Node               ] [k8kIPoW] closed
 
 
+    $ ssh -i ~/Box\ Sync/keys/paulvand-key01.pem cloud-user@10.203.49.168
+
+    $ sudo sysctl -w vm.max_map_count=262144
+
+
+        elasticsearch_1  | [2017-03-17T21:48:21,195][WARN ][i.n.u.i.MacAddressUtil   ] Failed to find a usable hardware address from the network interfaces; using random bytes: fe:cf:30:57:eb:24:34:7f
+        elasticsearch_1  | [2017-03-17T21:48:21,818][INFO ][o.e.t.TransportService   ] [k8kIPoW] publish_address {172.18.0.2:9300}, bound_addresses {[::]:9300}
+        elasticsearch_1  | [2017-03-17T21:48:21,892][INFO ][o.e.b.BootstrapChecks    ] [k8kIPoW] bound or publishing to a non-loopback or non-link-local address, enforcing bootstrap checks
+        elasticsearch_1  | ERROR: bootstrap checks failed
+        elasticsearch_1  | max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
+        elasticsearch_1  | [2017-03-17T21:48:21,957][INFO ][o.e.n.Node               ] [k8kIPoW] stopping ...
+        elasticsearch_1  | [2017-03-17T21:48:22,120][INFO ][o.e.n.Node               ] [k8kIPoW] stopped
+        elasticsearch_1  | [2017-03-17T21:48:22,123][INFO ][o.e.n.Node               ] [k8kIPoW] closing ...
+        elasticsearch_1  | [2017-03-17T21:48:22,252][INFO ][o.e.n.Node               ] [k8kIPoW] closed
+        elasticstackwithdocker_elasticsearch_1 exited with code 78
+
+
 # Kafka
 
 https://www.elastic.co/blog/just-enough-kafka-for-the-elastic-stack-part1
+
+
+# Issues using docker
+
+filebeat_1       | 2017/03/24 21:54:09.301520 sync.go:85: ERR Failed to publish events caused by: write tcp 172.18.0.5:41108->172.18.0.4:5044: write: connection reset by peer
+filebeat_1       | 2017/03/24 21:54:09.301603 single.go:91: INFO Error publishing events (retrying): write tcp 172.18.0.5:41108->172.18.0.4:5044: write: connection reset by peer

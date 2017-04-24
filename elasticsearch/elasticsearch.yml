@@ -2,5 +2,7 @@ transport.host: localhost
 transport.tcp.port: 9300
 http.port: 9200
 network.host: 0.0.0.0
+xpack.security.enabled: false
+
 #docker run -p 9200:9200 -e "http.host=0.0.0.0" -e "transport.host=127.0.0.1" docker.elastic.co/elasticsearch/elasticsearch:5.2.2
 #-v full_path_to/custom_elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
